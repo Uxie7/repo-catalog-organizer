@@ -1,0 +1,81 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Repository Catalog Organizer</title>
+<style>
+:root{color-scheme:dark;--bg:#0d1117;--panel:#161b22;--border:#30363d;--text:#e6edf3;--muted:#8b949e;--accent:#58a6ff;--green:#3fb950}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--text);font:14px/1.5 system-ui,-apple-system,Segoe UI,sans-serif}
+main{max-width:1200px;margin:auto;padding:28px 18px 60px}.eyebrow{color:var(--accent);font-weight:700;letter-spacing:.08em;text-transform:uppercase;font-size:11px}
+h1{font-size:30px;line-height:1.2;margin:7px 0}h2{font-size:17px;margin:0 0 12px}p{color:var(--muted);margin:7px 0 16px}
+.panel{background:var(--panel);border:1px solid var(--border);border-radius:12px;padding:17px;margin:16px 0}
+.row{display:flex;gap:10px;flex-wrap:wrap;align-items:end}.field{display:flex;flex-direction:column;gap:5px;flex:1;min-width:160px}
+label{font-size:12px;color:var(--muted)}input,select,textarea{width:100%;background:#0d1117;color:var(--text);border:1px solid var(--border);border-radius:7px;padding:9px;font:inherit}button{background:#238636;color:white;border:1px solid #2ea043;border-radius:7px;padding:9px 13px;font:600 13px system-ui;cursor:pointer}button.secondary{background:#21262d;border-color:var(--border);color:var(--text)}button:disabled{opacity:.5;cursor:wait}
+.small{font-size:12px;color:var(--muted)}.notice{padding:10px 12px;border-radius:8px;background:#1f2937;color:#c9d1d9;margin-top:10px}.notice.error{background:#3d1e24;color:#ffb3bd}.notice.ok{background:#132e22;color:#a6f3bb}
+.stats{display:flex;gap:9px;flex-wrap:wrap;margin:14px 0}.stat{border:1px solid var(--border);border-radius:9px;padding:10px 14px;min-width:110px}.stat b{font-size:20px;display:block}.stat span{color:var(--muted);font-size:11px}
+.toolbar{display:flex;gap:8px;flex-wrap:wrap;align-items:end;margin-bottom:12px}.toolbar .field{max-width:240px}
+.tablewrap{overflow:auto;border:1px solid var(--border);border-radius:9px}table{border-collapse:collapse;width:100%;min-width:900px}th,td{text-align:left;vertical-align:top;border-bottom:1px solid var(--border);padding:10px}th{color:var(--muted);font-size:11px;text-transform:uppercase;background:#11161d}tr:last-child td{border-bottom:0}
+.repo-name{font-weight:650;color:var(--accent);text-decoration:none}.repo-name:hover{text-decoration:underline}.repo-meta{font-size:11px;color:var(--muted);margin-top:3px}.edit{min-width:150px}.desc{min-width:230px}.tags{min-width:180px}.checkcell{width:34px}
+.pill{display:inline-block;border:1px solid var(--border);border-radius:99px;padding:2px 7px;color:var(--muted);font-size:11px;margin:2px}
+.hidden{display:none!important}.actions{display:flex;gap:7px;flex-wrap:wrap}.right{margin-left:auto}
+footer{color:var(--muted);font-size:12px;margin-top:22px}code{background:#22272e;padding:2px 5px;border-radius:4px}
+@media(max-width:650px){main{padding:18px 10px}h1{font-size:25px}.panel{padding:12px}}
+</style>
+</head>
+<body>
+<main>
+  <div class="eyebrow">Local-first · GitHub API</div>
+  <h1>Repository Catalog Organizer</h1>
+  <p>Scan repositories, review category and tag suggestions, then export a curated Markdown index. Nothing is published automatically.</p>
+
+  <section class="panel">
+    <h2>1. Connect a public account or organization</h2>
+    <div class="row">
+      <div class="field"><label for="owner">GitHub username / organization</label><input id="owner" placeholder="e.g. octocat" autocomplete="off"></div>
+      <div class="field" style="max-width:180px"><label for="scope">Repository owner type</label><select id="scope"><option value="user">Personal account</option><option value="org">Organization</option></select></div>
+      <div class="field"><label for="token">Optional GitHub token (private repos)</label><input id="token" type="password" placeholder="Not required for public repos" autocomplete="off"></div>
+      <button id="scanBtn">Scan repositories</button>
+    </div>
+    <p class="small">For public repositories, leave the token blank. For private repositories, use a fine-grained token with read-only repository metadata and contents access. The token is held in this page's memory and sent only to this local app/GitHub; it is not saved by the app.</p>
+    <div id="status" class="notice hidden"></div>
+  </section>
+
+  <section id="results" class="hidden">
+    <div class="stats">
+      <div class="stat"><b id="totalCount">0</b><span>Repositories scanned</span></div>
+      <div class="stat"><b id="includedCount">0</b><span>Selected for catalog</span></div>
+      <div class="stat"><b id="reviewCount">0</b><span>Need review</span></div>
+    </div>
+    <section class="panel">
+      <h2>2. Review and curate</h2>
+      <p>Suggestions use repository metadata and README text. Without an OpenAI API key configured on the local server, the app uses simple heuristics. Always verify generated descriptions before publishing.</p>
+      <div class="toolbar">
+        <div class="field"><label for="filter">Filter</label><input id="filter" placeholder="Search name, description, tags…"></div>
+        <div class="field"><label for="categoryFilter">Category</label><select id="categoryFilter"><option>All categories</option></select></div>
+        <div class="field"><label for="sort">Sort</label><select id="sort"><option value="updated">Recently updated</option><option value="name">Name A–Z</option><option value="stars">Most stars</option></select></div>
+        <button id="suggestBtn" class="secondary">Analyze README suggestions</button>
+      </div>
+      <div class="actions" style="margin:10px 0">
+        <button id="selectAllBtn" class="secondary">Select visible</button>
+        <button id="selectNoneBtn" class="secondary">Deselect visible</button>
+        <button id="exportBtn">Generate README</button>
+        <button id="downloadJsonBtn" class="secondary">Export catalog JSON</button>
+      </div>
+      <div class="tablewrap"><table>
+        <thead><tr><th class="checkcell">Include</th><th>Repository</th><th>Category</th><th>Description</th><th>Tags (comma-separated)</th></tr></thead>
+        <tbody id="repoRows"></tbody>
+      </table></div>
+      <p class="small">Tip: forked and archived repositories are marked. You may exclude them from the index without deleting them from GitHub.</p>
+    </section>
+    <section id="outputPanel" class="panel hidden">
+      <div class="row" style="align-items:center;margin-bottom:10px"><h2 style="margin:0">3. Generated README</h2><button id="copyBtn" class="secondary right">Copy Markdown</button><button id="downloadMdBtn" class="secondary">Download .md</button></div>
+      <textarea id="markdown" rows="20" spellcheck="false"></textarea>
+      <p class="small">Review the Markdown before committing it to your <code>project-index</code> repository. Generation does not push changes to GitHub.</p>
+    </section>
+  </section>
+  <footer>Runs on your computer at localhost. Repository data is fetched from GitHub when you scan. AI suggestions are optional and require an OpenAI API key configured before starting the server.</footer>
+</main>
+<script src="app.js"></script>
+</body>
+</html>
