@@ -81,13 +81,13 @@ def heuristic(repo, readme):
         tags.append(language.lower())
     rules = [
         (["hackathon", "hack", "fest", "event", "challenge", "submission"], "Hackathons & Events"),
-        (["game", "pygame", "tic tac toe", "snake", "wordle"], "Games & Fun"),
-        (["tutorial", "course", "learning", "practice", "exercise", "assignment", "beginner"], "Learning & Practice"),
-        (["experiment", "prototype", "demo", "proof of concept", "poc"], "Experiments & Side Projects"),
-        (["machine learning", "deep learning", "llm", "ai", "artificial intelligence", "model"], "AI & Data"),
-        (["website", "web app", "frontend", "backend", "react", "flask"], "Web & Applications"),
+        (["open source", "contribution", "contributors welcome", "community project"], "Open Source"),
+        (["tutorial", "course", "learning", "practice", "exercise", "assignment", "beginner", "knowledge"], "Knowledge & Learning"),
+        (["tool", "cli", "utility", "developer kit", "automation"], "Tools"),
+        (["work in progress", "wip", "help wanted", "contributions welcome", "collaboration"], "Work in Progress / Open for Collaboration"),
+        (["game", "pygame", "tic tac toe", "snake", "wordle", "experiment", "prototype", "demo", "proof of concept", "poc", "machine learning", "deep learning", "llm", "ai", "artificial intelligence", "model", "website", "web app", "frontend", "backend", "react", "flask"], "Fun & Experimental"),
     ]
-    category = "Experiments & Side Projects"
+    category = "Others"
     for needles, candidate in rules:
         if any(n in text for n in needles):
             category = candidate
@@ -108,7 +108,7 @@ def ai_suggest(repo, readme, fallback):
         return fallback
     prompt = {
         "task": "Classify a GitHub repository for a personal project catalog. Use only evidence in supplied metadata/README; do not invent capabilities.",
-        "allowed_categories": ["Hackathons & Events", "Experiments & Side Projects", "Games & Fun", "Learning & Practice", "AI & Data", "Web & Applications", "Open Source", "Other"],
+        "allowed_categories": ["Hackathons & Events", "Fun & Experimental", "Open Source", "Work in Progress / Open for Collaboration", "Tools", "Knowledge & Learning", "Others"],
         "output_schema": {"category": "one allowed category", "description": "plain factual summary, max 180 characters", "tags": ["3-6 concise lowercase tags"], "confidence": "high, medium, or low"},
         "repository": {k: repo.get(k) for k in ["name","description","language","topics","fork","archived"]},
         "readme_excerpt": readme[:9000]
@@ -130,7 +130,7 @@ def ai_suggest(repo, readme, fallback):
             result = json.loads(r.read().decode())
         content = result["choices"][0]["message"]["content"]
         out = json.loads(content)
-        allowed = ["Hackathons & Events","Experiments & Side Projects","Games & Fun","Learning & Practice","AI & Data","Web & Applications","Open Source","Other"]
+        allowed = ["Hackathons & Events", "Fun & Experimental", "Open Source", "Work in Progress / Open for Collaboration", "Tools", "Knowledge & Learning", "Others"]
         category = out.get("category")
         if category not in allowed: category = fallback["category"]
         tags = out.get("tags", [])

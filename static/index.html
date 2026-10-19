@@ -19,6 +19,10 @@ label{font-size:12px;color:var(--muted)}input,select,textarea{width:100%;backgro
 .repo-name{font-weight:650;color:var(--accent);text-decoration:none}.repo-name:hover{text-decoration:underline}.repo-meta{font-size:11px;color:var(--muted);margin-top:3px}.edit{min-width:150px}.desc{min-width:230px}.tags{min-width:180px}.checkcell{width:34px}
 .pill{display:inline-block;border:1px solid var(--border);border-radius:99px;padding:2px 7px;color:var(--muted);font-size:11px;margin:2px}
 .hidden{display:none!important}.actions{display:flex;gap:7px;flex-wrap:wrap}.right{margin-left:auto}
+.output-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px}.output-grid h3{font-size:13px;color:var(--muted);margin:0 0 7px}.markdown-preview{min-height:440px;max-height:700px;overflow:auto;background:#0d1117;border:1px solid var(--border);border-radius:7px;padding:14px}.markdown-preview h1,.markdown-preview h2,.markdown-preview h3{border-bottom:1px solid var(--border);padding-bottom:6px}.markdown-preview h1{font-size:24px}.markdown-preview h2{font-size:19px}.markdown-preview p{color:var(--text)}.markdown-preview blockquote{margin:10px 0;padding:1px 12px;border-left:3px solid var(--border);color:var(--muted)}.markdown-preview table{min-width:0;border-collapse:collapse}.markdown-preview th,.markdown-preview td{padding:6px 8px;border:1px solid var(--border)}.markdown-preview code{font-size:12px}.markdown-preview a{color:var(--accent)}
+@media(max-width:800px){.output-grid{grid-template-columns:1fr}}
+.icon-button{width:38px;height:38px;padding:8px;display:inline-flex;align-items:center;justify-content:center}.icon-button svg{width:18px;height:18px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}.icon-button:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.drag-cell{width:34px;text-align:center}.drag-handle{padding:4px;background:transparent;border:0;color:var(--muted);cursor:grab;touch-action:none}.drag-handle:active{cursor:grabbing}.drag-handle svg{width:17px;height:17px;fill:currentColor;vertical-align:middle}.dragging{opacity:.45}.drop-target td{border-top:2px solid var(--accent)}
 footer{color:var(--muted);font-size:12px;margin-top:22px}code{background:#22272e;padding:2px 5px;border-radius:4px}
 @media(max-width:650px){main{padding:18px 10px}h1{font-size:25px}.panel{padding:12px}}
 </style>
@@ -53,7 +57,7 @@ footer{color:var(--muted);font-size:12px;margin-top:22px}code{background:#22272e
       <div class="toolbar">
         <div class="field"><label for="filter">Filter</label><input id="filter" placeholder="Search name, description, tags…"></div>
         <div class="field"><label for="categoryFilter">Category</label><select id="categoryFilter"><option>All categories</option></select></div>
-        <div class="field"><label for="sort">Sort</label><select id="sort"><option value="updated">Recently updated</option><option value="name">Name A–Z</option><option value="stars">Most stars</option></select></div>
+        <div class="field"><label for="sort">Sort</label><select id="sort"><option value="manual">Manual order</option><option value="updated">Recently updated</option><option value="name">Name A–Z</option><option value="stars">Most stars</option></select></div>
         <button id="suggestBtn" class="secondary">Analyze README suggestions</button>
       </div>
       <div class="actions" style="margin:10px 0">
@@ -63,14 +67,15 @@ footer{color:var(--muted);font-size:12px;margin-top:22px}code{background:#22272e
         <button id="downloadJsonBtn" class="secondary">Export catalog JSON</button>
       </div>
       <div class="tablewrap"><table>
-        <thead><tr><th class="checkcell">Include</th><th>Repository</th><th>Category</th><th>Description</th><th>Tags (comma-separated)</th></tr></thead>
+        <thead><tr><th aria-label="Reorder"></th><th class="checkcell">Include</th><th>Repository</th><th>Category</th><th>Description</th><th>Tags (comma-separated)</th></tr></thead>
         <tbody id="repoRows"></tbody>
       </table></div>
-      <p class="small">Tip: forked and archived repositories are marked. You may exclude them from the index without deleting them from GitHub.</p>
+      <p class="small">Drag repositories by the grip icon to set their order. Forked and archived repositories are marked; you may exclude them from the index without deleting them from GitHub.</p>
     </section>
     <section id="outputPanel" class="panel hidden">
-      <div class="row" style="align-items:center;margin-bottom:10px"><h2 style="margin:0">3. Generated README</h2><button id="copyBtn" class="secondary right">Copy Markdown</button><button id="downloadMdBtn" class="secondary">Download .md</button></div>
-      <textarea id="markdown" rows="20" spellcheck="false"></textarea>
+      <div class="row" style="align-items:center;margin-bottom:10px"><h2 style="margin:0">3. Generated README</h2><button id="previewBtn" class="secondary right" type="button" aria-pressed="false">Preview</button><button id="copyBtn" class="secondary icon-button" type="button" aria-label="Copy Markdown" title="Copy Markdown"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="8" y="8" width="12" height="12" rx="2"></rect><path d="M16 8V5a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h3"></path></svg></button><button id="downloadMdBtn" class="secondary icon-button" type="button" aria-label="Download Markdown" title="Download Markdown"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3v12m0 0 4-4m-4 4-4-4"></path><path d="M5 17v3h14v-3"></path></svg></button></div>
+      <div id="markdownEditor"><h3>Markdown</h3><textarea id="markdown" rows="24" spellcheck="false"></textarea></div>
+      <article id="markdownPreview" class="markdown-preview hidden" aria-label="Generated README preview"></article>
       <p class="small">Review the Markdown before committing it to your <code>project-index</code> repository. Generation does not push changes to GitHub.</p>
     </section>
   </section>
