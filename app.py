@@ -8,6 +8,7 @@ from urllib.parse import urlparse
 ROOT = Path(__file__).resolve().parent
 STATIC = ROOT / "static"
 PORT = int(os.environ.get("PORT", "8765"))
+HOST = os.environ.get("HOST", "127.0.0.1")
 OPENAI_API_KEY = os.environ.get("OPENAI_API_KEY", "")
 
 def http_json(url, token=None):
@@ -191,7 +192,8 @@ class Handler(SimpleHTTPRequestHandler):
             return self.send_json(400, {"error":str(e)[:500]})
 
 if __name__ == "__main__":
-    server = ThreadingHTTPServer(("127.0.0.1", PORT), Handler)
-    print(f"Repository Catalog Organizer running at http://127.0.0.1:{PORT}")
-    print("Local-only server. Press Ctrl+C to stop.")
+    server = ThreadingHTTPServer((HOST, PORT), Handler)
+    display_host = "127.0.0.1" if HOST in ("0.0.0.0", "::") else HOST
+    print(f"Repository Catalog Organizer running at http://{display_host}:{PORT}")
+    print("Press Ctrl+C to stop.")
     server.serve_forever()
