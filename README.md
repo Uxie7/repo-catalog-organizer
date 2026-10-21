@@ -39,7 +39,7 @@ Create a **Web Service** from this repository and choose **Python 3**. Use these
 - Build: `python -m compileall -q .`
 - Start: `python app.py`
 
-In the service's Environment settings, add `HOST` with value `0.0.0.0`. Render supplies `PORT` automatically. Add `OPENAI_API_KEY` only if you want AI-assisted suggestions; `OPENAI_MODEL` is optional. Keep the service access-restricted if you configure an OpenAI key or plan to enter private-repository tokens.
+The app detects Render's `RENDER=true` environment variable and binds to `0.0.0.0`; Render supplies `PORT` automatically. No `HOST` setting is required. Add `OPENAI_API_KEY` only if you want AI-assisted suggestions; `OPENAI_MODEL` is optional. Keep the service access-restricted if you configure an OpenAI key or plan to enter private-repository tokens.
 
 To enable AI suggestions, set your key in the same PowerShell session before launching:
 

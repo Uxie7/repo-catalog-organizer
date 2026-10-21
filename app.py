@@ -8,7 +8,7 @@ from urllib.parse import urlparse
 ROOT = Path(__file__).resolve().parent
 STATIC = ROOT / "static"
 PORT = int(os.environ.get("PORT", "8765"))
-HOST = os.environ.get("HOST", "127.0.0.1")
+HOST = "0.0.0.0" if os.environ.get("RENDER") == "true" else os.environ.get("HOST", "127.0.0.1")
 OPENAI_API_KEY = os.environ.get("OPENAI_API_KEY", "")
 
 def http_json(url, token=None):
